@@ -8,11 +8,13 @@ class AmidaLine
 
   @connections
   @length
+  @name
 
-  attr_reader :length
+  attr_reader :length, :name
 
-  def initialize length
+  def initialize length, name
     @length      = length
+    @name        = name
     @connections = {}
   end
 
@@ -65,7 +67,11 @@ class Amida
 
   def initialize num, line_length=10, random_lines=5
     @lines = []
-    num.times{@lines << AmidaLine.new(line_length)}
+    name = 'A'
+    num.times do 
+      @lines << AmidaLine.new(line_length, name.clone)
+      name.next!
+    end
     single_connect
     random_connect random_lines
   end
@@ -101,7 +107,11 @@ class Amida
   end
 
   def display
+    # print names
+    puts @lines.map{|l|l.name}.join(SpaceSymbol * ConnectorWidth)
+
     @lines.first.points.each do |point|
+      # print lines
       print @lines.first.symbol(point)    # left terminal line
 
       @lines.each_cons(2) do |left, right|
