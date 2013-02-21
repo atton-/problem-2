@@ -74,7 +74,7 @@ class Amida
 
   @lines
 
-  def initialize num, line_length=10, random_lines=5
+  def initialize num=10, line_length=10, random_lines=5
     hit    = (0...num).to_a.sample
     @lines = []
     name   = 'A'
@@ -142,13 +142,9 @@ class Amida
   end
 end
 
-
-Amida.new(9,5).display
+Amida.new.display
 puts
-Amida.new(8,2).display
+Amida.new(10,2).display
 puts
-Amida.new(8,1).display
+Amida.new(10,10,1000).display
 puts
-
-amida = Amida.new(10)
-amida.display
