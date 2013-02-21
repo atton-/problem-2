@@ -12,8 +12,8 @@ class AmidaLine
   attr_reader :length
 
   def initialize length
-    @connections = []
     @length      = length
+    @connections = {}
   end
 
   def points
@@ -21,7 +21,11 @@ class AmidaLine
   end
 
   def connected? point
-    @connections.include? point
+    @connections.keys.include? point
+  end
+
+  def connected_line? line, point
+    @connections.keys.include?(point) && @connections[point] == line
   end
 
   def connectable? line, point
@@ -33,13 +37,13 @@ class AmidaLine
   end
 
   def connect_line line, point
-    self.connect point
-    line.connect point
+    self.connect line, point
+    line.connect self, point
   end
 
   protected
 
-  def connect point
+  def connect line, point
     if connected?(point)
       raise "point #{point} is already connected"
     end
@@ -48,13 +52,14 @@ class AmidaLine
       raise "point #{point} is invalid position"
     end
 
-    @connections << point
+    @connections[point] = line
   end
 end
 
 class Amida
-  SpaceNum    = 3
-  SpaceSymbol = " "
+  ConnectorWidth  = 3
+  ConnectorSymbol = "-"
+  SpaceSymbol     = " "
 
   @lines
 
@@ -97,7 +102,19 @@ class Amida
 
   def display
     @lines.first.points.each do |point|
-      puts @lines.map{|l|l.symbol(point)}.join(SpaceSymbol * SpaceNum)
+      print @lines.first.symbol(point)    # left terminal line
+
+      @lines.each_cons(2) do |left, right|
+        # print connector
+        if (left.connected_line?(right, point) && right.connected_line?(left, point))
+          print ConnectorSymbol * ConnectorWidth
+        else
+          print SpaceSymbol * ConnectorWidth
+        end
+        # print symbol
+        print right.symbol(point)
+      end
+        puts
     end
   end
 end
