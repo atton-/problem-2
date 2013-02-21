@@ -21,6 +21,10 @@ class AmidaLine
     @connections.include? point
   end
 
+  def connectable? line, point
+    ![self, line].any?{|l| l.connected?(point)}
+  end
+
   def connect point
     if connected?(point)
       raise "point #{point} is already connected"
@@ -32,6 +36,7 @@ class AmidaLine
 
     @connections << point
   end
+
 end
 
 class Amida
@@ -57,8 +62,9 @@ class Amida
     lines = [left_line, right_line]
 
     points.each do |p|
-      unless lines.any?{|l|l.connected?(p)}
-        lines.each{|l|l.connect(p)}   # connect
+      if left_line.connectable?(right_line, p)
+        left_line.connect(p)
+        right_line.connect(p)
         return
       end
     end
@@ -66,6 +72,14 @@ class Amida
   end
 
   def random_connect num
+    num.times do
+      lines = @lines.sample(2)
+      point = lines.first.points.sample
+      if lines.first.connectable?(lines.last, point)
+        lines.first.connect point
+        lines.last.connect  point
+      end
+    end
   end
 
   def display
