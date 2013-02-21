@@ -3,9 +3,8 @@
 require 'pp'
 
 class AmidaLine
-  ConnectedSymbol  = '|'
-
-  UnConectedSymbol = '+'
+  ConnectedSymbol  = '+'
+  UnConectedSymbol = '|'
 
   @connections
   @length
@@ -26,8 +25,19 @@ class AmidaLine
   end
 
   def connectable? line, point
-    ![self, line].any?{|l| l.connected?(point)}
+    ![self, line].any?{|l|l.connected?(point)}
   end
+
+  def symbol point
+    connected?(point) ? ConnectedSymbol : UnConectedSymbol
+  end
+
+  def connect_line line, point
+    self.connect point
+    line.connect point
+  end
+
+  protected
 
   def connect point
     if connected?(point)
@@ -39,11 +49,6 @@ class AmidaLine
     end
 
     @connections << point
-  end
-
-  def symbol point
-    return ConnectedSymbol if connected? point
-    UnConectedSymbol
   end
 end
 
@@ -70,12 +75,9 @@ class Amida
     points = left_line.points
     points.shuffle!
 
-    lines = [left_line, right_line]
-
     points.each do |p|
       if left_line.connectable?(right_line, p)
-        left_line.connect(p)
-        right_line.connect(p)
+        left_line.connect_line(right_line, p)
         return
       end
     end
@@ -84,18 +86,17 @@ class Amida
 
   def random_connect num
     num.times do
-      lines = @lines.sample(2)
-      point = lines.first.points.sample
-      if lines.first.connectable?(lines.last, point)
-        lines.first.connect point
-        lines.last.connect  point
+      (left_line, right_line) = @lines.sample(2)
+      point = left_line.points.sample
+
+      if left_line.connectable?(right_line, point)
+        left_line.connect_line(right_line, point)
       end
     end
   end
 
   def display
     @lines.first.points.each do |point|
-
       puts @lines.map{|l|l.symbol(point)}.join(SpaceSymbol * SpaceNum)
     end
   end
