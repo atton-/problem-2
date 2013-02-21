@@ -3,6 +3,10 @@
 require 'pp'
 
 class AmidaLine
+  ConnectedSymbol  = '|'
+
+  UnConectedSymbol = '+'
+
   @connections
   @length
 
@@ -37,9 +41,16 @@ class AmidaLine
     @connections << point
   end
 
+  def symbol point
+    return ConnectedSymbol if connected? point
+    UnConectedSymbol
+  end
 end
 
 class Amida
+  SpaceNum    = 3
+  SpaceSymbol = " "
+
   @lines
 
   def initialize num, line_length=10, random_lines=5
@@ -83,7 +94,10 @@ class Amida
   end
 
   def display
-    pp @lines
+    @lines.first.points.each do |point|
+
+      puts @lines.map{|l|l.symbol(point)}.join(SpaceSymbol * SpaceNum)
+    end
   end
 end
 
