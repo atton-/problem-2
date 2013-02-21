@@ -86,7 +86,7 @@ class Amida
 
   def random_connect num
     num.times do
-      (left_line, right_line) = @lines.sample(2)
+      (left_line, right_line) = @lines.each_cons(2).to_a.sample
       point = left_line.points.sample
 
       if left_line.connectable?(right_line, point)
