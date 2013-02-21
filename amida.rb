@@ -6,15 +6,20 @@ class AmidaLine
   ConnectedSymbol  = '+'
   UnConectedSymbol = '|'
 
+  HitSymbol        = '*'
+  NotHitSymbol     = ' '
+
   @connections
   @length
   @name
+  @hit
 
   attr_reader :length, :name
 
-  def initialize length, name
+  def initialize length, name, hit=false
     @length      = length
     @name        = name
+    @hit         = hit
     @connections = {}
   end
 
@@ -34,8 +39,12 @@ class AmidaLine
     ![self, line].any?{|l|l.connected?(point)}
   end
 
-  def symbol point
+  def point_symbol point
     connected?(point) ? ConnectedSymbol : UnConectedSymbol
+  end
+
+  def hit_symbol
+    @hit ? HitSymbol : NotHitSymbol
   end
 
   def connect_line line, point
@@ -66,10 +75,11 @@ class Amida
   @lines
 
   def initialize num, line_length=10, random_lines=5
+    hit    = (0...num).to_a.sample
     @lines = []
-    name = 'A'
-    num.times do 
-      @lines << AmidaLine.new(line_length, name.clone)
+    name   = 'A'
+    num.times do |n|
+      @lines << AmidaLine.new(line_length, name.clone, hit==n)
       name.next!
     end
     single_connect
@@ -110,9 +120,9 @@ class Amida
     # print names
     puts @lines.map{|l|l.name}.join(SpaceSymbol * ConnectorWidth)
 
+    # print lines
     @lines.first.points.each do |point|
-      # print lines
-      print @lines.first.symbol(point)    # left terminal line
+      print @lines.first.point_symbol(point)    # left terminal line
 
       @lines.each_cons(2) do |left, right|
         # print connector
@@ -122,10 +132,13 @@ class Amida
           print SpaceSymbol * ConnectorWidth
         end
         # print symbol
-        print right.symbol(point)
+        print right.point_symbol(point)
       end
         puts
     end
+
+    # print hit
+    puts @lines.map(&:hit_symbol).join(SpaceSymbol * ConnectorWidth)
   end
 end
 
